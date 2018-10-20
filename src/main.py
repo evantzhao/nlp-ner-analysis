@@ -3,25 +3,68 @@ from emission import EmissionMatrix
 from transition import TransitionMatrix
 from hmm import HiddenMarkovModel
 from constants import Constants
+import time
+from unk import Unknown
 
 TRAINING_FILE = "../train.txt"
-TRAINING_FILE = "../woah.txt"
 TEST_FILE = "../test.txt"
 
-token_stream, pos_stream, tag_stream = Utils.read_training_file(
-    TRAINING_FILE,
-    insert_start_and_end=True
-)
-em = EmissionMatrix(token_stream, tag_stream)
-tm = TransitionMatrix(tag_stream)
-sentence = ['<START(*)>', 'Michael', 'Chang', 'is', 'playing', 'in', 'his', '10th', 'U.S.', 'Open', 'and', 'enjoying', 'his', 'highest', 'seeding', 'ever', ',', 'but', 'the', '24-year-old', 'American', 'had', 'to', 'overcome', 'a', 'case', 'of', 'the', 'jitters', 'Monday', 'before', 'winning', 'his', 'first-round', 'match', 'on', 'opening', 'day', '.', '</END(STOP)>']
-memo, bt = HiddenMarkovModel.viterbi(tm, em, sentence)
-predicted_tags = HiddenMarkovModel.backtrack(memo, bt)
-expected_tags = ['B-PER', 'I-PER', 'O', 'O', 'O', 'O', 'O', 'B-MISC', 'I-MISC', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-MISC', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O']
-passed = True
-if len(predicted_tags) == len(expected_tags):
-    for t1, t2 in zip(predicted_tags, expected_tags):
-        if t1 != t2:
-            passed = False
-print(f"Test status?: {'Passed' if passed else 'Failed'}")
-# print(bt, memo)
+
+def main():
+    token_stream, pos_stream, tag_stream = Utils.read_training_file(
+        TRAINING_FILE,
+        insert_start_and_end=True
+    )
+    log("Read training file")
+    test_token_stream = Utils.read_test_file(TEST_FILE)
+    log("Read test file")
+
+    word_counts = Unknown.construct_word_counts(token_stream)
+    token_stream, low_freq_set = Unknown.remove_low_freqency_words(
+        Constants.LOW_FREQUENCY_WORD_THRESHOLD,
+        word_counts,
+        token_stream
+    )
+    recognized_words = set(word_counts.keys()) - low_freq_set
+    log("Filtered out low frequency words from training")
+
+    em = EmissionMatrix(token_stream, tag_stream)
+    tm = TransitionMatrix(tag_stream)
+    log("Constructed HMM matrices")
+
+    res = []
+    # Test token stream, test part of speech, test index
+    for tt_stream, test_pos, tidx in test_token_stream:
+        log(f"Classifying sentence {tidx[1]}")
+        psuedo_tokens = Unknown.convert_word_to_psuedo_word(
+            tt_stream,
+            Unknown.compute_test_word_replacement_set(recognized_words, tt_stream)
+        )
+        memo, bt = HiddenMarkovModel.viterbi(tm, em, psuedo_tokens)
+        predicted_tags = HiddenMarkovModel.backtrack(memo, bt)
+        res.extend(predicted_tags)
+    log("Classification completed")
+
+    output = Utils.compile_output_data(res)
+    log("Compilation of data complete")
+
+    Utils.write_results_to_file(output, "../output/hmm_output.txt")
+    log("Classification complete")
+
+
+def log(s):
+    """ Log a message with time consumed dialog
+    """
+    def generate_spaces(s):
+        return " " * (50 - len(s))
+
+    elapsed = time.time() - start
+    minutes = int(elapsed/60)
+    seconds = int(elapsed) % 60
+    print(f"{s}{generate_spaces(s)}Elapsed time: {minutes} min {seconds} sec")
+
+
+if __name__ == '__main__':
+    global start
+    start = time.time()
+    main()

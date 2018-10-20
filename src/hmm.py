@@ -40,7 +40,7 @@ class HiddenMarkovModel:
                 # deal with base case
                 if len(possible_tags) == 1:
                     past_prob = memo[sentence_index - 1][0]
-                    transition_prob = transition.probability_of_word_given_prior(
+                    transition_prob = transition.interpolated_prob_of_word_given_prior(
                         Constants.START,
                         Constants.TAG_TO_STRING[tag_index]
                     )
@@ -48,16 +48,14 @@ class HiddenMarkovModel:
                         word=sentence[sentence_index],
                         state=Constants.TAG_TO_STRING[tag_index]
                     )
-                    sequence_prob = float(past_prob) * transition_prob * emission_prob
-                    if sequence_prob > maximum_probability:
-                        maximum_probability = sequence_prob
-                        backtrack_tag = Constants.START
-                        memo[sentence_index][tag_index] = maximum_probability
-                        backtracking[sentence_index][tag_index] = backtrack_tag
+                    # TODO evanzhao Use log probabilities
+                    sequence_prob = past_prob * transition_prob * emission_prob
+                    memo[sentence_index][tag_index] = sequence_prob
+                    backtracking[sentence_index][tag_index] = Constants.START
                     continue
                 for tag in possible_tags:
                     past_prob = memo[sentence_index - 1][tag]
-                    transition_prob = transition.probability_of_word_given_prior(
+                    transition_prob = transition.interpolated_prob_of_word_given_prior(
                         prior=Constants.TAG_TO_STRING[tag],
                         word=Constants.TAG_TO_STRING[tag_index]
                     )
@@ -81,7 +79,7 @@ class HiddenMarkovModel:
         seed_index = seed_level.index(max(seed_level))
 
         result = []
-        i = len(backtracking_matrix) - 2
+        i = len(backtracking_matrix) - 1
         while i >= 1:
             result.append(seed_index)
             seed_index = backtracking_matrix[i][seed_index]
@@ -102,7 +100,7 @@ def log(s):
 
 
 def main():
-    hmm = HiddenMarkovModel([], [])
+    pass
 
 
 if __name__ == '__main__':

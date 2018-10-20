@@ -1,3 +1,0 @@
-Michael	Chang	is	playing	in	his	10th	U.S.	Open	and	enjoying	his	highest	seeding	ever	,	but	the	24-year-old	American	had	to	overcome	a	case	of	the	jitters	Monday	before	winning	his	first-round	match	on	opening	day	.
-NNP	NNP	VBZ	VBG	IN	PRP$	JJ	NNP	NNP	CC	VBG	PRP$	JJS	VBG	RB	,	CC	DT	JJ	NNP	VBD	TO	VB	DT	NN	IN	DT	NNS	NNP	IN	VBG	PRP$	JJ	NN	IN	NN	NN	.
-B-PER	I-PER	O	O	O	O	O	B-MISC	I-MISC	O	O	O	O	O	O	O	O	O	O	B-MISC	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O

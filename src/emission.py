@@ -38,8 +38,6 @@ class EmissionMatrix:
         state: str,
         token: str,
     ) -> int:
-        if state not in self.emissions_matrix:
-            return 0
         return self.emissions_matrix[state][token]
 
     def construct_emissions_tag_count(self) -> Dict[str, int]:

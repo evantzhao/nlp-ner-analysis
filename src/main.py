@@ -32,10 +32,7 @@ def main():
     log("Starting named entity recognition task")
 
     log("Reading training file")
-    token_stream, pos_stream, tag_stream = Utils.read_training_file(
-        TRAINING_FILE_PATH,
-        insert_start_and_end=True
-    )
+    (token_stream, pos_stream, tag_stream), (v_token_stream, v_pos_stream, v_tag_stream) = Utils.create_training_validation_split(TRAINING_FILE_PATH)
 
     log("Filtering low frequency tokens from training set")
     token_counts = Unknown.get_token_counts(token_stream)
@@ -57,7 +54,7 @@ def main():
     log("Writing predictions with baseline to file")
     Utils.write_results_to_file(baseline_output, "../output/baseline_output.txt")
 
-    # TODO: This should be moved into HMM class
+    # TODO: This should be moved into HMM
     em = EmissionMatrix(token_stream, tag_stream)
     tm = TransitionMatrix(tag_stream)
     log("Constructed HMM matrices")

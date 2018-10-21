@@ -1,9 +1,11 @@
 from constants import Constants
 from typing import Dict
 from typing import List
+from typing import Tuple
 
 
 class Utils:
+
     # Reads in training file, concatenating all three data types into one ds
     def read_training_file(
         filepath: str,
@@ -21,6 +23,40 @@ class Utils:
                 streams[index].extend(line_arr)
                 index = (index + 1) % len(streams)
         return streams
+
+    def create_training_validation_split(
+        training_file_path: str,
+    ) -> Tuple[List[List[str]], List[List[str]]]:
+        training_streams = [[], [], []]
+        validation_streams = [[], [], []]
+        with open(training_file_path, 'r') as f:
+            lines = f.readlines()
+            offset = 0
+            entry_num = 0
+            while offset < len(lines):
+                tokens = Utils.add_start_end_tokens(lines[offset])
+                pos = Utils.add_start_end_tokens(lines[offset + 1])
+                tags = Utils.add_start_end_tokens(lines[offset + 2])
+                if entry_num % 10 != 9:
+                    training_streams[0].extend(tokens)
+                    training_streams[1].extend(pos)
+                    training_streams[2].extend(tags)
+                else:
+                    validation_streams[0].extend(tokens)
+                    validation_streams[1].extend(pos)
+                    validation_streams[2].extend(tags)
+                offset += 3
+                entry_num += 1
+        return training_streams, validation_streams
+
+
+    def add_start_end_tokens(
+        line: str,
+    ) -> List[str]:
+        line_arr = line.strip().split()
+        line_arr.insert(0, Constants.START)
+        line_arr.append(Constants.END)
+        return line_arr
 
     def read_test_file(
         filepath: str,

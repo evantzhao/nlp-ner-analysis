@@ -85,25 +85,3 @@ class HiddenMarkovModel:
             seed_index = backtracking_matrix[i][seed_index]
             i -= 1
         return [Constants.TAG_TO_STRING[tag] for tag in reversed(result)]
-
-
-def log(s):
-    """ Log a message with time consumed dialog
-    """
-    def generate_spaces(s):
-        return " " * (50 - len(s))
-
-    elapsed = time.time() - start
-    minutes = int(elapsed/60)
-    seconds = int(elapsed) % 60
-    print(f"{s}{generate_spaces(s)}Elapsed time: {minutes} min {seconds} sec")
-
-
-def main():
-    pass
-
-
-if __name__ == '__main__':
-    global start
-    start = time.time()
-    main()

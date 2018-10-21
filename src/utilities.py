@@ -1,5 +1,6 @@
 from constants import Constants
-from typing import List, Dict
+from typing import Dict
+from typing import List
 
 
 class Utils:
@@ -136,11 +137,3 @@ class Utils:
             f.write("MISC,")
             f.write(" ".join(results["MISC"]))
             f.write("\n")
-
-
-def main():
-    Utils.read_training_file("../train.txt")
-
-
-if __name__ == '__main__':
-    main()

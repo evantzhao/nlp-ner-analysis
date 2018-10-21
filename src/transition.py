@@ -67,11 +67,3 @@ class TransitionMatrix:
         scaled_bigram = InterpolationConstants.BIGRAM * bigram_term
         scaled_unigram = InterpolationConstants.UNIGRAM * unigram_term
         return scaled_bigram + scaled_unigram
-
-
-def main():
-    pass
-
-
-if __name__ == '__main__':
-    main()

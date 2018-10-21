@@ -5,6 +5,7 @@ from constants import Constants
 
 
 class Regex:
+
     twoDigitNum = re.compile('^[0-9]{2}$'), ".twoDigitNum."
     fourDigitNum = re.compile('^[0-9]{4}$'), ".fourDigitNum."
     # containsDigitAndAlpha = '^$'
@@ -20,20 +21,36 @@ class Regex:
     lowercase = re.compile('^[a-z]+$'), ".lowercase."
     OTHER = ".other."
 
-    ITERABLE_REGEX = [twoDigitNum, fourDigitNum, containsDigitAndDash, containsDigitAndSlash, containsDigitAndComma, containsDigitAndPeriod, otherNum, allCaps, capPeriod, initCap, lowercase]
+    ITERABLE_REGEX = [
+        twoDigitNum,
+        fourDigitNum,
+        containsDigitAndDash,
+        containsDigitAndSlash,
+        containsDigitAndComma,
+        containsDigitAndPeriod,
+        otherNum,
+        allCaps,
+        capPeriod,
+        initCap,
+        lowercase
+    ]
 
 
 class Unknown:
-    def construct_word_counts(stream: List[str]) -> Dict[str, int]:
-        counts = Counter()
-        for word in stream:
-            counts[word] += 1
-        return counts
 
-    def remove_low_freqency_words(
-        frequency_threshold: int,
-        unigram: Dict[str, int],
-        stream: List[str],
+    LOW_FREQUENCY_THRESHOLD = 3
+
+    def get_token_counts(
+        token_stream: List[str]
+    ) -> Dict[str, int]:
+        token_counts = Counter()
+        for token in token_stream:
+            token_counts[token] += 1
+        return token_counts
+
+    def replace_low_frequency_tokens(
+        token_counts: Dict[str, int],
+        token_stream: List[str],
     ):
         """ For all words that appear less than [frequency_threshold] times,
         we remove them from the corpus and replace them with a psuedo word.
@@ -41,15 +58,16 @@ class Unknown:
         if an unknown word appears, we will simply convert it to this psuedo
         word and continue classifying as normal.
         """
-        low_freq_set = set()
-        for word in unigram:
-            if unigram[word] < frequency_threshold:
-                low_freq_set.add(word)
+        low_frequency_tokens = set()
+        for token in token_counts:
+            if token_counts[token] < Unknown.LOW_FREQUENCY_THRESHOLD:
+                low_frequency_tokens.add(token)
+
         closed_vocab_corpus = Unknown.convert_word_to_psuedo_word(
-            stream,
-            low_freq_set
+            token_stream,
+            low_frequency_tokens
         )
-        return closed_vocab_corpus, low_freq_set
+        return closed_vocab_corpus, low_frequency_tokens
 
     def convert_word_to_psuedo_word(
         og_stream: List[str],

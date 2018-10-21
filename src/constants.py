@@ -1,5 +1,4 @@
 class Constants:
-    LOW_FREQUENCY_WORD_THRESHOLD = 3
 
     START = "<START(*)>"
     END = "</END(STOP)>"

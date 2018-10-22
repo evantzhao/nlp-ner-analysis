@@ -6,69 +6,55 @@ from constants import Constants
 
 
 class HiddenMarkovModel:
-    """ Aggregate class containing methods to run the Viterbi algorithm on a
-    sequence of words. Requires a transition probability model (bigram/trigram)
-    and emission probabilities.
-    """
-    def allowable_tags_at_sequence_index(index):
-        if index == 1:
-            return {Constants.START}
-        else:
-            return Constants.ALL_TAGS
 
     def viterbi(
         transition: TransitionMatrix,
         emission: EmissionMatrix,
-        sentence: List[str],
+        tokens: List[str],
     ) -> List[str]:
-        """ Runs the viterbi algorithm
-        """
         memo = [
-            [0] * len(Constants.ALL_TAGS) for i in range(len(sentence) - 1)
+            [0] * len(Constants.ALL_TAGS) for i in range(len(tokens) - 1)
         ]
         backtracking = [
-            [-1] * len(Constants.ALL_TAGS) for i in range(len(sentence) - 1)
+            [-1] * len(Constants.ALL_TAGS) for i in range(len(tokens) - 1)
         ]
 
         memo[0] = [1]
-        for sentence_index in range(len(memo)):
-            if sentence_index == 0:
-                continue
-            for tag_index in range(len(memo[sentence_index])):
+        for token_index in range(1, len(memo)):
+            for tag_index in range(len(memo[token_index])):
                 maximum_probability, backtrack_tag = 0, -1
-                possible_tags = HiddenMarkovModel.allowable_tags_at_sequence_index(sentence_index)
                 # deal with base case
-                if len(possible_tags) == 1:
-                    past_prob = memo[sentence_index - 1][0]
+                if token_index == 1:
+                    past_prob = memo[token_index - 1][0]
                     transition_prob = transition.get_bigram_interpolated_probability(
                         Constants.START,
                         Constants.TAG_TO_STRING[tag_index]
                     )
                     emission_prob = emission.e(
-                        word=sentence[sentence_index],
+                        word=tokens[token_index],
                         state=Constants.TAG_TO_STRING[tag_index]
                     )
                     # TODO evanzhao Use log probabilities
                     sequence_prob = past_prob * transition_prob * emission_prob
-                    memo[sentence_index][tag_index] = sequence_prob
-                    backtracking[sentence_index][tag_index] = Constants.START
+                    memo[token_index][tag_index] = sequence_prob
+                    backtracking[token_index][tag_index] = Constants.START
                     continue
-                for tag in possible_tags:
-                    past_prob = memo[sentence_index - 1][tag]
+                for tag in Constants.ALL_TAGS:
+                    past_prob = memo[token_index - 1][tag]
                     transition_prob = transition.get_bigram_interpolated_probability(
                         Constants.TAG_TO_STRING[tag],
                         Constants.TAG_TO_STRING[tag_index]
                     )
                     emission_prob = emission.e(
-                        word=sentence[sentence_index],
+                        word=tokens[token_index],
                         state=Constants.TAG_TO_STRING[tag_index]
                     )
                     sequence_prob = float(past_prob) * transition_prob * emission_prob
                     if sequence_prob > maximum_probability:
                         maximum_probability = sequence_prob
                         backtrack_tag = tag
-                memo[sentence_index][tag_index] = maximum_probability
-                backtracking[sentence_index][tag_index] = backtrack_tag
+                memo[token_index][tag_index] = maximum_probability
+                backtracking[token_index][tag_index] = backtrack_tag
         return memo, backtracking
 
     def backtrack(

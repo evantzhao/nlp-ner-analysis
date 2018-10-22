@@ -2,6 +2,7 @@ from collections import Counter
 from typing import Dict
 from typing import List
 from typing import Set
+from typing import Tuple
 
 from constants import Constants
 from emission import EmissionMatrix
@@ -9,8 +10,6 @@ from unknown import Unknown
 
 
 class MostFrequentClassBaseline:
-    """ Assign token to the class it occurred in most in the training set
-    """
 
     def __init__(
         self,
@@ -31,18 +30,13 @@ class MostFrequentClassBaseline:
             counts[token][tag] += 1
         return counts
 
-    def most_frequent_class(
+    def classify_test_stream(
         self,
-        test_stream,
-        recognized_tokens: Set[str],
+        test_stream: Tuple[List[str], List[str], List[str]],
     ) -> List[str]:
         prediction = []
         for token_stream, pos_stream, _ in test_stream:
-            pseudo_token_stream = Unknown.convert_word_to_psuedo_word(
-                token_stream,
-                Unknown.compute_test_word_replacement_set(recognized_tokens, token_stream),
-            )
-            for token in pseudo_token_stream:
+            for token in token_stream:
                 if token == Constants.START or token == Constants.END:
                     continue
                 most_frequent_tag = ""

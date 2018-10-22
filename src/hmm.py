@@ -15,11 +15,9 @@ class HiddenMarkovModel:
         self,
         token_stream: List[str],
         tag_stream: List[str],
-        closed_vocabulary: Set[str]
     ):
         self.emission = EmissionMatrix(token_stream, tag_stream)
         self.transition = TransitionMatrix(tag_stream)
-        self.closed_vocabulary = closed_vocabulary
 
     def classify_test_stream(
         self,
@@ -27,14 +25,7 @@ class HiddenMarkovModel:
     ) -> List[str]:
         predictions = []
         for token_stream, _, _ in test_stream:
-            tokens = Unknown.convert_word_to_psuedo_word(
-                token_stream,
-                Unknown.compute_test_word_replacement_set(
-                    self.closed_vocabulary,
-                    token_stream,
-                ),
-            )
-            memo, backtracking = self.viterbi(tokens)
+            memo, backtracking = self.viterbi(token_stream)
             predicted_tags = self.backtrack(memo, backtracking)
             predictions.extend(predicted_tags)
         return predictions

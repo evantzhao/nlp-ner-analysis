@@ -1,6 +1,6 @@
 import re
 from collections import Counter
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Tuple
 from constants import Constants
 
 
@@ -49,15 +49,16 @@ class Unknown:
         return token_counts
 
     def replace_low_frequency_tokens(
-        token_counts: Dict[str, int],
         token_stream: List[str],
-    ):
+    ) -> Tuple[List[str], Set[str]]:
         """ For all words that appear less than [frequency_threshold] times,
         we remove them from the corpus and replace them with a psuedo word.
         The same thing is done to the test set at classification time --
         if an unknown word appears, we will simply convert it to this psuedo
         word and continue classifying as normal.
         """
+        token_counts = Unknown.get_token_counts(token_stream)
+
         low_frequency_tokens = set()
         for token in token_counts:
             if token_counts[token] < Unknown.LOW_FREQUENCY_THRESHOLD:
@@ -67,7 +68,27 @@ class Unknown:
             token_stream,
             low_frequency_tokens
         )
-        return closed_vocab_corpus, low_frequency_tokens
+
+        for token in low_frequency_tokens:
+            del token_counts[token]
+
+        return closed_vocab_corpus, set(token_counts)
+
+    def replace_unknown_tokens(
+        test_stream: Tuple[List[str], List[str], List[str]],
+        closed_vocabulary: Set[str],
+    ) -> List[Tuple[List[str], List[str], List[str]]]:
+        replaced_test_stream = []
+        for token_stream, pos_stream, index_stream in test_stream:
+            tokens = Unknown.convert_word_to_psuedo_word(
+                token_stream,
+                Unknown.compute_test_word_replacement_set(
+                    closed_vocabulary,
+                    token_stream,
+                ),
+            )
+            replaced_test_stream.append((tokens, pos_stream, index_stream))
+        return replaced_test_stream
 
     def convert_word_to_psuedo_word(
         og_stream: List[str],

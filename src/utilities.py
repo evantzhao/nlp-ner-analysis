@@ -156,9 +156,10 @@ class Utils:
         return results
 
     def write_results_to_file(
-        results: Dict[str, List[str]],
+        predictions: List[str],
         output_file: str = "../output/output.txt"
     ) -> None:
+        results = Utils.compile_output_data(predictions)
         with open(output_file, 'w') as f:
             f.write("Type,Prediction\n")
             f.write("PER,")

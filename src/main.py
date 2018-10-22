@@ -46,39 +46,21 @@ def main():
         del token_counts[token]
 
     log("Reading test file")
-    test_token_stream = Utils.read_test_file(TEST_FILE_PATH)
+    test_stream = Utils.read_test_file(TEST_FILE_PATH)
 
     log("Training most frequent class baseline")
     baseline = MostFrequentClassBaseline(token_stream, tag_stream)
     log("Predicting tags using baseline")
-    baseline_predictions = baseline.most_frequent_class(test_token_stream, token_counts.keys())
-    baseline_output = Utils.compile_output_data(baseline_predictions)
+    baseline_predictions = baseline.most_frequent_class(test_stream, token_counts.keys())
     log("Writing predictions with baseline to file")
-    Utils.write_results_to_file(baseline_output, "../output/baseline_output.txt")
+    Utils.write_results_to_file(baseline_predictions, "../output/baseline_output.txt")
 
-    # TODO: This should be moved into HMM
-    em = EmissionMatrix(token_stream, tag_stream)
-    tm = TransitionMatrix(tag_stream)
-    log("Constructed HMM matrices")
-
-    res = []
-    # Test token stream, test part of speech, test index
-    for tt_stream, test_pos, tidx in test_token_stream:
-        # log(f"Classifying sentence {tidx[1]}")
-        psuedo_tokens = Unknown.convert_word_to_psuedo_word(
-            tt_stream,
-            Unknown.compute_test_word_replacement_set(token_counts.keys(), tt_stream)
-        )
-        memo, bt = HiddenMarkovModel.viterbi(tm, em, psuedo_tokens)
-        predicted_tags = HiddenMarkovModel.backtrack(memo, bt)
-        res.extend(predicted_tags)
-    log("Classification completed")
-
-    output = Utils.compile_output_data(res)
-    log("Compilation of data complete")
-
-    Utils.write_results_to_file(output, "../output/hmm_output.txt")
-    log("Classification complete")
+    log("Training Hidden Markove Model")
+    hmm = HiddenMarkovModel(token_stream, tag_stream, token_counts.keys())
+    log("Predicting tags using HMM")
+    hmm_predictions = hmm.classify_test_stream(test_stream)
+    log("Writing predictions with HMM to file")
+    Utils.write_results_to_file(hmm_predictions, "../output/hmm_output.txt")
 
 
 if __name__ == '__main__':

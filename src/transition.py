@@ -3,13 +3,6 @@ from typing import List, Dict
 from constants import Constants
 
 
-class InterpolationConstants:
-    # TODO evanzhao separate training set and find better lambda params
-    # with empirical evidence
-    BIGRAM = 0.95
-    UNIGRAM = 0.05
-
-
 class TransitionMatrix:
 
     def __init__(
@@ -72,13 +65,13 @@ class TransitionMatrix:
             prior_i_1 = tag
         return trigram_counts
 
-    def unigram_probability(
+    def get_unigram_probability(
         self,
         tag: str,
     ) -> float:
         return self.unigram_counts[tag] / float(self.total_tag_count)
 
-    def bigram_probability(
+    def get_bigram_probability(
         self,
         prior_i_1: str,
         tag: str,
@@ -87,13 +80,37 @@ class TransitionMatrix:
             return 0.0
         return self.bigram_counts[prior_i_1][tag] / float(self.unigram_counts[prior_i_1])
 
-    def interpolated_prob_of_word_given_prior(
+    def get_trigram_probability(
         self,
-        prior: str,
-        word: str
+        prior_i_2: str,
+        prior_i_1: str,
+        tag: str,
     ) -> float:
-        bigram_term = self.bigram_probability(prior, word)
-        unigram_term = self.unigram_probability(word)
-        scaled_bigram = InterpolationConstants.BIGRAM * bigram_term
-        scaled_unigram = InterpolationConstants.UNIGRAM * unigram_term
-        return scaled_bigram + scaled_unigram
+        if prior_i_2 not in self.trigram_counts or prior_i_1 not in self.trigram_counts[prior_i_2]:
+            return 0.0
+        return self.self.trigram_counts[prior_i_2][prior_i_1][tag] / float(self.bigram_counts[prior_i_2][prior_i_1])
+
+    def get_bigram_interpolated_probability(
+        self,
+        prior_i_1: str,
+        tag: str,
+    ) -> float:
+        UNIGRAM_LAMBDA = 0.05
+        BIGRAM_LAMBDA = 0.95
+        weighted_unigram_probability = UNIGRAM_LAMBDA * self.get_unigram_probability(tag)
+        weighted_bigram_probability = BIGRAM_LAMBDA * self.get_bigram_probability(prior_i_1, tag)
+        return weighted_unigram_probability + weighted_bigram_probability
+
+    def get_trigram_interpolated_probability(
+        self,
+        prior_i_2: str,
+        prior_i_1: str,
+        tag: str,
+    ) -> float:
+        UNIGRAM_LAMBDA = 0.01
+        BIGRAM_LAMBDA = 0.09
+        TRIGRAM_LAMBDA = 0.90
+        weighted_unigram_probability = UNIGRAM_LAMBDA * self.get_unigram_probability(tag)
+        weighted_bigram_probability = BIGRAM_LAMBDA * self.get_bigram_probability(prior_i_1, tag)
+        weighted_trigram_probability = TRIGRAM_LAMBDA * self.get_trigram_probability(prior_i_2, prior_i_1, tag)
+        return weighted_trigram_probability + weighted_unigram_probability + weighted_bigram_probability

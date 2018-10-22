@@ -40,7 +40,7 @@ class HiddenMarkovModel:
                 # deal with base case
                 if len(possible_tags) == 1:
                     past_prob = memo[sentence_index - 1][0]
-                    transition_prob = transition.interpolated_prob_of_word_given_prior(
+                    transition_prob = transition.get_bigram_interpolated_probability(
                         Constants.START,
                         Constants.TAG_TO_STRING[tag_index]
                     )
@@ -55,9 +55,9 @@ class HiddenMarkovModel:
                     continue
                 for tag in possible_tags:
                     past_prob = memo[sentence_index - 1][tag]
-                    transition_prob = transition.interpolated_prob_of_word_given_prior(
-                        prior=Constants.TAG_TO_STRING[tag],
-                        word=Constants.TAG_TO_STRING[tag_index]
+                    transition_prob = transition.get_bigram_interpolated_probability(
+                        Constants.TAG_TO_STRING[tag],
+                        Constants.TAG_TO_STRING[tag_index]
                     )
                     emission_prob = emission.e(
                         word=sentence[sentence_index],

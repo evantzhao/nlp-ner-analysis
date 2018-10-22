@@ -26,9 +26,14 @@ def log(msg):
 def main():
     log("Starting named entity recognition task")
 
+    log("Splitting training set into training and validation sets")
+    training, validation = Utils.create_training_validation_split(TRAINING_FILE_PATH)
+    log("Writing training and validation sets to file")
+    Utils.write_streams_to_file(training, "./input/training.txt")
+    Utils.write_streams_to_file(validation, "./input/validation.txt")
+
     log("Reading training file")
     token_stream, pos_stream, tag_stream = Utils.read_training_file(TRAINING_FILE_PATH)
-    # (token_stream, pos_stream, tag_stream), (v_token_stream, v_pos_stream, v_tag_stream) = Utils.create_training_validation_split(TRAINING_FILE_PATH)
     log("Replacing low frequency tokens from training set")
     token_stream, closed_vocabulary = Unknown.replace_low_frequency_tokens(token_stream)
 

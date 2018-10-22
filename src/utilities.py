@@ -25,29 +25,36 @@ class Utils:
 
     def create_training_validation_split(
         training_file_path: str,
-    ) -> Tuple[List[List[str]], List[List[str]]]:
-        training_streams = [[], [], []]
-        validation_streams = [[], [], []]
+    ):
+        training_streams = []
+        validation_streams = []
         with open(training_file_path, 'r') as f:
             lines = f.readlines()
             offset = 0
             entry_num = 0
             while offset < len(lines):
-                tokens = Utils.add_start_end_tokens(lines[offset])
-                pos = Utils.add_start_end_tokens(lines[offset + 1])
-                tags = Utils.add_start_end_tokens(lines[offset + 2])
+                tokens = lines[offset]
+                pos = lines[offset + 1]
+                tags = lines[offset + 2]
+                entry = (tokens, pos, tags)
                 if entry_num % 10 != 9:
-                    training_streams[0].extend(tokens)
-                    training_streams[1].extend(pos)
-                    training_streams[2].extend(tags)
+                    training_streams.append(entry)
                 else:
-                    validation_streams[0].extend(tokens)
-                    validation_streams[1].extend(pos)
-                    validation_streams[2].extend(tags)
+                    validation_streams.append(entry)
                 offset += 3
                 entry_num += 1
         return training_streams, validation_streams
 
+    def write_streams_to_file(
+        streams: Tuple[List[str], List[str], List[str]],
+        output_file_path: str,
+    ) -> None:
+        with open(output_file_path, 'w') as f:
+            for token_stream, pos_stream, index_stream in streams:
+                f.write(token_stream)
+                f.write(pos_stream)
+                f.write(index_stream)
+            f.close()
 
     def add_start_end_tokens(
         line: str,

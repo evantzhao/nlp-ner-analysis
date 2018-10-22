@@ -8,7 +8,6 @@ class Regex:
 
     twoDigitNum = re.compile('^[0-9]{2}$'), ".twoDigitNum."
     fourDigitNum = re.compile('^[0-9]{4}$'), ".fourDigitNum."
-    # containsDigitAndAlpha = '^$'
     containsDigitAndDash = re.compile('^[0-9]+(\-)[0-9]+$'), ".containsDigitAndDash."
     containsDigitAndSlash = re.compile('^([0-9]+(\/))+[0-9]+$'), ".containsDigitAndSlash."
     containsDigitAndComma = re.compile('^[0-9]+,[0-9.]+$'), ".containsDigitAndComma."

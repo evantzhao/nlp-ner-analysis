@@ -15,7 +15,7 @@ TEST_FILE_PATH = "../test.txt"
 
 def log(msg):
     def fill_spaces(msg):
-        return " " * (50 - len(msg))
+        return " " * (60 - len(msg))
 
     elapsed = time.time() - start
     minutes = int(elapsed / 60)

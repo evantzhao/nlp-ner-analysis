@@ -1,5 +1,7 @@
-from typing import Dict, List
 from collections import Counter
+from typing import Dict
+from typing import List
+
 from constants import Constants
 
 

@@ -6,7 +6,6 @@ from typing import Tuple
 
 class Utils:
 
-    # Reads in training file, concatenating all three data types into one ds
     def read_training_file(
         filepath: str,
         insert_start_and_end: bool = True,

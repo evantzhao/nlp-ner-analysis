@@ -10,11 +10,12 @@ from utilities import Utils
 
 
 TRAINING_FILE_PATH = "../train.txt"
+# TRAINING_FILE_PATH = "../train_sample.txt"
 TEST_FILE_PATH = "../test.txt"
 
 
 def log(msg):
-        """ Log a message to stdout with time elapsed"""
+        """Log a message to stdout with time elapsed"""
         def fill_spaces(msg):
             return " " * (50 - len(msg))
 
@@ -32,7 +33,8 @@ def main():
     log("Starting named entity recognition task")
 
     log("Reading training file")
-    (token_stream, pos_stream, tag_stream), (v_token_stream, v_pos_stream, v_tag_stream) = Utils.create_training_validation_split(TRAINING_FILE_PATH)
+    token_stream, pos_stream, tag_stream = Utils.read_training_file(TRAINING_FILE_PATH)
+    # (token_stream, pos_stream, tag_stream), (v_token_stream, v_pos_stream, v_tag_stream) = Utils.create_training_validation_split(TRAINING_FILE_PATH)
 
     log("Filtering low frequency tokens from training set")
     token_counts = Unknown.get_token_counts(token_stream)
